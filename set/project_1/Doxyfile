@@ -102,7 +102,7 @@ FILE_PATTERNS          = *.h \
                          *.cpp \
                          *.md \
 			 *.c
-RECURSIVE              = NO
+RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_SYMBOLS        =

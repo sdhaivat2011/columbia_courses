@@ -1,0 +1,28 @@
+var stem_8c =
+[
+    [ "FALSE", "dd/df8/stem_8c.html#aa93f0eb578d23995850d61f7d61c55c1", null ],
+    [ "INC", "dd/df8/stem_8c.html#af735670d9b1cd3dfa2d927db387f7123", null ],
+    [ "LETTER", "dd/df8/stem_8c.html#a41e26001c91e6d127101f7086fa317a7", null ],
+    [ "TRUE", "dd/df8/stem_8c.html#aa8cecfc5c5c054d2875c03e77b7be15d", null ],
+    [ "cons", "dd/df8/stem_8c.html#a869319436b8d46811e87fa40a9b3a1d4", null ],
+    [ "create_stemmer", "dd/df8/stem_8c.html#aaf7655b3d00411800055563fdefcf43e", null ],
+    [ "cvc", "dd/df8/stem_8c.html#a5078b5499a42f9424956febfd1766905", null ],
+    [ "doublec", "dd/df8/stem_8c.html#a584799d58aaba2e156c097a70294b73d", null ],
+    [ "ends", "dd/df8/stem_8c.html#a841e952d8d4dda6f53b6c707d4c23a5d", null ],
+    [ "free_stemmer", "dd/df8/stem_8c.html#a23018baae747f0d163da2a2b7fe91ac1", null ],
+    [ "m", "dd/df8/stem_8c.html#af18c9d38822a4d3b8d8ef37cc1447d82", null ],
+    [ "main", "dd/df8/stem_8c.html#a0ddf1224851353fc92bfbff6f499fa97", null ],
+    [ "r", "dd/df8/stem_8c.html#a7f76e589f30343ae402110e72059b4b9", null ],
+    [ "setto", "dd/df8/stem_8c.html#aa9b0a294c9c212fa65b73fd6b24a837f", null ],
+    [ "stem", "dd/df8/stem_8c.html#a9adc1c124ef5b0c5a0ebee4f5c7c60d9", null ],
+    [ "stemfile", "dd/df8/stem_8c.html#ace84d1929c729aba783d284e05952f7f", null ],
+    [ "step1ab", "dd/df8/stem_8c.html#a721e5f5ef4e77f70f3d79bbf78d2d6da", null ],
+    [ "step1c", "dd/df8/stem_8c.html#a45547eb6aafaa6ab647e0e355e65a726", null ],
+    [ "step2", "dd/df8/stem_8c.html#a2a6d27c833a57c7b62644c3b2ff269f7", null ],
+    [ "step3", "dd/df8/stem_8c.html#a18ff7ffe1dbdee5ab4c84f22765f35a7", null ],
+    [ "step4", "dd/df8/stem_8c.html#a2578370088c37cf31c2daa75dd42beb6", null ],
+    [ "step5", "dd/df8/stem_8c.html#ad087e99e8116bdfbe9e6873f1769726f", null ],
+    [ "vowelinstem", "dd/df8/stem_8c.html#acd26f54da909a96bfaf31d0e7facd8ac", null ],
+    [ "i_max", "dd/df8/stem_8c.html#a30b7a5a2e5f4f222a8dd45869d83c80a", null ],
+    [ "s", "dd/df8/stem_8c.html#ab51cd24d34f6509eafb5e059f4c7d10e", null ]
+];

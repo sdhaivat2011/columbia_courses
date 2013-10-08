@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DocSetNodes version="1.0">
+  <TOC>
+    <Node>
+      <Name>Root</Name>
+      <Path>index.html</Path>
+      <Subnodes>
+        <Subnodes>
+         <Node>
+          <Name>File List</Name>
+          <Path>files.html</Path>
+          <Subnodes>
+           <Node>
+            <Name>src/README.md</Name>
+            <Path>d9/dd6/_r_e_a_d_m_e_8md.html</Path>
+           </Node>
+          </Subnodes>
+         </Node>
+        </Subnodes>
+       </Node>
+      </Subnodes>
+    </Node>
+  </TOC>
+</DocSetNodes>

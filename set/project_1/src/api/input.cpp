@@ -12,12 +12,17 @@
 #include <algorithm>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
 
 #define DB_NAME "../indexes/db_index.sqlite"
+
+map<string, vector<int> > docList;
+map<string, int> stopwords;
+
 
 /**
  * Takes a directory as input
@@ -52,6 +57,47 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
 	return 0;
 }
 
+// Given a list of stopwords, it generates a map for the same.
+void generateStopwords(const char* stopwordFile) {
+	struct stat sb;
+	if (stat(stopwordFile, &sb) == -1) {
+		cout << "Could not obtain stats for: " << stopwordFile << endl;
+		return;
+    	}
+	int fileSize = (int)sb.st_size;
+	char buf[fileSize];
+
+	// Reda the stopwords file
+	int fin = ::open(stopwordFile, O_RDONLY);
+	if(fin) {
+		int n;
+		while((n = read(fin, buf, fileSize)) > 0) {
+		        // Do nothing
+		}
+	}
+	else {
+		cout << "Error opening " << stopwordFile << endl;
+	}	
+	close(fin);
+	
+	// Store in a map
+	char word[15];        
+	int curr;
+	for(int i = 0; i < fileSize;) {
+		while(i < fileSize && buf[i] != ' ' && buf[i] != '\0' && buf[i] != '\n') {
+			word[curr] = buf[i];
+			curr++;
+			i++;
+		}
+		word[curr] = '\0';
+		if(curr > 0) {
+			stopwords[word] = 1;
+		}
+		curr = 0;
+		i++;
+	}
+}
+
 /**
  * Takes files as input
  * Parses the XML documents
@@ -60,154 +106,156 @@ static int callback(void *NotUsed, int argc, char **argv, char **azColName){
  * */
 int parse_input(vector<string> inputFiles, string inDir)
 {
-	pugi::xml_document doc;
-	int docID = 0;
-	string title, author, biblio, text; // extracted from each document provided
-	char titleAr[1024], authorAr[1024], biblioAr[1024];
-	map<int, string> docInfo;
+	//stemRawText(inputFiles, inDir);
+//	pugi::xml_document doc;
+//	int docID = 0;
+//	string title, author, biblio, text; // extracted from each document provided
+//	char titleAr[1024], authorAr[1024], biblioAr[1024];
+//	map<int, string> docInfo;
 
-	// Open files for writing to
-	int file_docInfo = open("docInfo.dat", O_WRONLY|O_CREAT,0640);
-	if(file_docInfo < 0) {
-		cout << "Could not open docInfo.dat" << endl;
-		return 1;
-	}
+//	// Open files for writing to
+//	int file_docInfo = open("docInfo.dat", O_WRONLY|O_CREAT,0640);
+//	if(file_docInfo < 0) {
+//		cout << "Could not open docInfo.dat" << endl;
+//		return 1;
+//	}
 
-	// Open a database
-	sqlite3 *db;
-	char *zErrMsg = 0;
-	int rc;
+//	// Open a database
+//	sqlite3 *db;
+//	char *zErrMsg = 0;
+//	int rc;
 
-	rc = sqlite3_open(DB_NAME, &db);
-	if( rc ){
-		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-		sqlite3_close(db);
-		return(1);
-  	}
-	rc = sqlite3_exec(db, "create table docInfo(docID int, doc_value blob);", callback, 0, &zErrMsg);
-	if( rc!=SQLITE_OK ){
-		fprintf(stderr, "SQL error: %s\n", zErrMsg);
-		sqlite3_free(zErrMsg);
-	}
-	
-	// Iterate over all the files
-	for(unsigned n = 0; n < inputFiles.size(); n++) {
-		// Do not consider the deafult directories
-		if((inputFiles.at(n).compare(".") != 0) && (inputFiles.at(n).compare("..") != 0)) {
-			string absFileName = inDir + inputFiles.at(n);
-			pugi::xml_parse_result result = doc.load_file(absFileName.c_str());
-			if(result != 1) {
-				cout << "Could not load " << absFileName << endl;
-				return 1;
-			}
+//	rc = sqlite3_open(DB_NAME, &db);
+//	if( rc ){
+//		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+//		sqlite3_close(db);
+//		return(1);
+//  	}
+//	rc = sqlite3_exec(db, "create table docInfo(docID int, doc_value blob);", callback, 0, &zErrMsg);
+//	if( rc!=SQLITE_OK ){
+//		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+//		sqlite3_free(zErrMsg);
+//	}
+//	
+//	// Iterate over all the files
+//	for(unsigned n = 0; n < inputFiles.size(); n++) {
+//		// Do not consider the deafult directories
+//		if((inputFiles.at(n).compare(".") != 0) && (inputFiles.at(n).compare("..") != 0)) {
+//			string absFileName = inDir + inputFiles.at(n);
+//			pugi::xml_parse_result result = doc.load_file(absFileName.c_str());
+//			if(result != 1) {
+//				cout << "Could not load " << absFileName << endl;
+//				return 1;
+//			}
 
-			// Iterate over the nodes present in the XML
-			for (pugi::xml_node node = doc.child("DOC").first_child(); node; node = node.next_sibling()) {
-				string nodeName  = node.name();
-				if(nodeName.compare("DOCNO") == 0) {
-					docID = atoi(node.child_value());
-				}
-				else if(nodeName.compare("TITLE") == 0) {
-					title = node.child_value();
-					if(title.length() > 2) {
-						title.assign(title.substr(1, title.length() - 2));
-					}
-					else {
-						// TODO: Fix this
-						title.assign("*ERROR*");
-					}
-					strcpy(titleAr, title.c_str());
-				}
-				else if(nodeName.compare("AUTHOR") == 0) {
-					author = node.child_value();
-					if(author.length() > 2) {
-						author.assign(author.substr(1, author.length() - 2));
-					}
-					else {
-						// TODO: Fix this
-						author.assign("*ERROR*");
-					}
-					strcpy(authorAr, author.c_str());
-				}
-				else if(nodeName.compare("BIBLIO") == 0) {
-					biblio = node.child_value();
-					if(biblio.length() > 2) {
-						biblio.assign(biblio.substr(1, biblio.length() - 2));
-					}
-					else {
-						// TODO: Fix this
-						biblio.assign("*ERROR*");
-					}
-					strcpy(biblioAr, biblio.c_str());
-				}
-				else if(nodeName.compare("TEXT") == 0) {
-					text = node.child_value();
-					if(text.length() > 2) {
-						text.assign(text.substr(1, text.length() - 2));
-					}
-					else {
-						// TODO: Fix this
-						text.assign("*ERROR*");
-					}
-				}
-			}
-			
-			// Populate the maps, storing in the JSON format
-			string doc_value = "{\"l\" : \"" + absFileName + "\",\"t\" : \"";
-			string newline(1, '\n');
-			string quote("'");
-			for(unsigned int i = 0; i < strlen(titleAr); i++) {
-				string s(1, titleAr[i]);
-				if(s.compare(newline) == 0) {
-					doc_value.append("\\n");
-				}
-				else {
-					doc_value.append(s);
-				}
-			}
-			doc_value.append("\",\"a\" : \"");
-			for(unsigned int i = 0; i < strlen(authorAr); i++) {
-				string s(1, authorAr[i]);
-				if(s.compare(newline) == 0) {
-					doc_value.append("\\n");
-				}
-				else {
-					doc_value.append(s);
-				}
-			}
-			doc_value.append("\",\"b\" : \"");
-			for(unsigned int i = 0; i < strlen(biblioAr); i++) {
-				string s(1, biblioAr[i]);
-				if(s.compare(newline) == 0) {
-					doc_value.append("\\n");
-				}
-				else {
-					doc_value.append(s);
-				}
-			}
-			doc_value.append("\"}");
-						
-			string docID_s = boost::lexical_cast<string>( docID );
-			// Write doc_value into a file
-			string output = docID_s + "|" + doc_value + "\n";
+//			// Iterate over the nodes present in the XML
+//			for (pugi::xml_node node = doc.child("DOC").first_child(); node; node = node.next_sibling()) {
+//				string nodeName  = node.name();
+//				if(nodeName.compare("DOCNO") == 0) {
+//					docID = atoi(node.child_value());
+//				}
+//				else if(nodeName.compare("TITLE") == 0) {
+//					title = node.child_value();
+//					if(title.length() > 2) {
+//						title.assign(title.substr(1, title.length() - 2));
+//					}
+//					else {
+//						// TODO: Fix this
+//						title.assign("*ERROR*");
+//					}
+//					strcpy(titleAr, title.c_str());
+//				}
+//				else if(nodeName.compare("AUTHOR") == 0) {
+//					author = node.child_value();
+//					if(author.length() > 2) {
+//						author.assign(author.substr(1, author.length() - 2));
+//					}
+//					else {
+//						// TODO: Fix this
+//						author.assign("*ERROR*");
+//					}
+//					strcpy(authorAr, author.c_str());
+//				}
+//				else if(nodeName.compare("BIBLIO") == 0) {
+//					biblio = node.child_value();
+//					if(biblio.length() > 2) {
+//						biblio.assign(biblio.substr(1, biblio.length() - 2));
+//					}
+//					else {
+//						// TODO: Fix this
+//						biblio.assign("*ERROR*");
+//					}
+//					strcpy(biblioAr, biblio.c_str());
+//				}
+//				else if(nodeName.compare("TEXT") == 0) {
+//					text = node.child_value();
+//					if(text.length() > 2) {
+//						text.assign(text.substr(1, text.length() - 2));
+//					}
+//					else {
+//						// TODO: Fix this
+//						text.assign("*ERROR*");
+//					}
+//					stemRawText(absFileName);
+//				}
+//			}
+//			
+//			// Populate the maps, storing in the JSON format
+//			string doc_value = "{\"l\" : \"" + absFileName + "\",\"t\" : \"";
+//			string newline(1, '\n');
+//			string quote("'");
+//			for(unsigned int i = 0; i < strlen(titleAr); i++) {
+//				string s(1, titleAr[i]);
+//				if(s.compare(newline) == 0) {
+//					doc_value.append("\\n");
+//				}
+//				else {
+//					doc_value.append(s);
+//				}
+//			}
+//			doc_value.append("\",\"a\" : \"");
+//			for(unsigned int i = 0; i < strlen(authorAr); i++) {
+//				string s(1, authorAr[i]);
+//				if(s.compare(newline) == 0) {
+//					doc_value.append("\\n");
+//				}
+//				else {
+//					doc_value.append(s);
+//				}
+//			}
+//			doc_value.append("\",\"b\" : \"");
+//			for(unsigned int i = 0; i < strlen(biblioAr); i++) {
+//				string s(1, biblioAr[i]);
+//				if(s.compare(newline) == 0) {
+//					doc_value.append("\\n");
+//				}
+//				else {
+//					doc_value.append(s);
+//				}
+//			}
+//			doc_value.append("\"}");
+//						
+//			string docID_s = boost::lexical_cast<string>( docID );
+//			// Write doc_value into a file
+//			string output = docID_s + "|" + doc_value + "\n";
 
-			write(file_docInfo, output.c_str(), output.length());
-			
-			//json::value v = json::parse(doc_value);
-			//std::cout << json::pretty_print(v) << std::endl;
-			//json::value z = v["t"];
-			//cout << json::to_string(z) << endl;
-			//std::cout << "----------" << std::endl;
-			//cout << docInfo[docID] << endl;
+//			write(file_docInfo, output.c_str(), output.length());
+//			
+//			//json::value v = json::parse(doc_value);
+//			//std::cout << json::pretty_print(v) << std::endl;
+//			//json::value z = v["t"];
+//			//cout << json::to_string(z) << endl;
+//			//std::cout << "----------" << std::endl;
+//			//cout << docInfo[docID] << endl;
 
-		}
-		else {
-			// When it is the default directory.
-			// do nothing
-		}
-	}
-	system("./db/sqlite3/shell.exe -separator '|' ../indexes/db_index.sqlite '.import docInfo.dat docInfo'");
-	close(file_docInfo);
-	sqlite3_close(db);
+//		}
+//		else {
+//			// When it is the default directory.
+//			// do nothing
+//		}
+//	}
+//	system("./db/sqlite3/shell.exe -separator '|' ../indexes/db_index.sqlite '.import docInfo.dat docInfo'");
+//	close(file_docInfo);
+//	sqlite3_close(db);
 	return 0;
 }

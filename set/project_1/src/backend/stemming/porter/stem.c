@@ -34,19 +34,7 @@
 
 #include <stdlib.h>  /* for malloc, free */
 #include <string.h>  /* for memcmp, memmove */
-
-/* You will probably want to move the following declarations to a central
-   header file.
-*/
-
-struct stemmer;
-
-extern struct stemmer * create_stemmer(void);
-extern void free_stemmer(struct stemmer * z);
-
-extern int stem(struct stemmer * z, char * b, int k);
-
-
+#include "stem.h"
 
 /* The main part of the stemming algorithm starts here.
 */
@@ -425,20 +413,20 @@ void stemfile(struct stemmer * z, FILE * f)
    }
 }
 
-int main(int argc, char * argv[])
-{  int i;
+/*int main(int argc, char * argv[])*/
+/*{  int i;*/
 
-   struct stemmer * z = create_stemmer();
+/*   struct stemmer * z = create_stemmer();*/
 
-   s = (char *) malloc(i_max + 1);
-   for (i = 1; i < argc; i++)
-   {  FILE * f = fopen(argv[i],"r");
-      if (f == 0) { fprintf(stderr,"File %s not found\n",argv[i]); exit(1); }
-      stemfile(z, f);
-   }
-   free(s);
+/*   s = (char *) malloc(i_max + 1);*/
+/*   for (i = 1; i < argc; i++)*/
+/*   {  FILE * f = fopen(argv[i],"r");*/
+/*      if (f == 0) { fprintf(stderr,"File %s not found\n",argv[i]); exit(1); }*/
+/*      stemfile(z, f);*/
+/*   }*/
+/*   free(s);*/
 
-   free_stemmer(z);
+/*   free_stemmer(z);*/
 
-   return 0;
-}
+/*   return 0;*/
+/*}*/

@@ -1,5 +1,6 @@
 #include "../parsers/xml/pugixml/src/pugixml.hpp"
 #include "../parsers/json/cpp-json/json.h"
+#include "../db/sqlite3/sqlite3.h"
 #include "input.h"
 
 #include <iostream>
@@ -11,6 +12,8 @@
 #include <algorithm>
 
 using namespace std;
+
+#define DB_NAME "../indexes/db_index.sqlite"
 
 /**
  * Takes a directory as input
@@ -33,6 +36,19 @@ vector<string> load_input(const char *p_input) {
 }
 
 /**
+ * Callback for sqlite3 queries.
+ *
+ * */
+static int callback(void *NotUsed, int argc, char **argv, char **azColName){
+	int i;
+	for(i=0; i<argc; i++){
+		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+	}
+	printf("\n");
+	return 0;
+}
+
+/**
  * Takes files as input
  * Parses the XML documents
  * Creates a map of the features that need to be indexed
@@ -47,6 +63,21 @@ int parse_input(vector<string> inputFiles, string inDir)
 	map<int, string> docInfo;
 
 	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return(1);
+  	}
+	rc = sqlite3_exec(db, "create table tbl1(one varchar(10), two smallint);", callback, 0, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
 	
 	// Iterate over all the files
 	for(unsigned n = 0; n < inputFiles.size(); n++) {
@@ -56,7 +87,7 @@ int parse_input(vector<string> inputFiles, string inDir)
 			pugi::xml_parse_result result = doc.load_file(absFileName.c_str());
 			if(result != 1) {
 				cout << "Could not load " << absFileName << endl;
-				return 0;
+				return 1;
 			}
 
 			// Iterate over the nodes present in the XML
@@ -154,5 +185,6 @@ int parse_input(vector<string> inputFiles, string inDir)
 			// do nothing
 		}
 	}
-	return 1;
+	sqlite3_close(db);
+	return 0;
 }

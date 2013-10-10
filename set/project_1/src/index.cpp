@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
 
 	vector<string> inputFiles = load_input(argv[1]);
 	int parse_success = parse_input(inputFiles, argv[1]);
-	if(parse_success) {
+	if(!parse_success) {
 
 	}
 	else {

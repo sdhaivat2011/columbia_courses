@@ -13,7 +13,7 @@ extern map<string, string> docChar;
 extern map<string, vector<int> > docList;
 
 // Map to store information specific to a document
-extern map<int, string> docInfo; 
+extern map<int, string> docInfo;
 
 // Returns all the files present in the given directory
 extern vector<string> load_input(const char* p_inputDir);

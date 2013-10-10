@@ -1,4 +1,5 @@
 #include "../parsers/xml/pugixml/src/pugixml.hpp"
+#include "../parsers/json/cpp-json/json.h"
 #include "input.h"
 
 #include <iostream>
@@ -6,6 +7,8 @@
 #include <stdio.h>
 #include <vector>
 #include <dirent.h>
+#include <stdlib.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -38,8 +41,16 @@ vector<string> load_input(const char *p_input) {
 int parse_input(vector<string> inputFiles, string inDir)
 {
 	pugi::xml_document doc;
+	int docID = 0;
+	string title, author, biblio, text; // extracted from each document provided
+	char titleAr[1024], authorAr[1024], biblioAr[1024];
+	map<int, string> docInfo;
+
+	// Open a database
 	
+	// Iterate over all the files
 	for(unsigned n = 0; n < inputFiles.size(); n++) {
+		// Do not consider the deafult directories
 		if((inputFiles.at(n).compare(".") != 0) && (inputFiles.at(n).compare("..") != 0)) {
 			string absFileName = inDir + inputFiles.at(n);
 			pugi::xml_parse_result result = doc.load_file(absFileName.c_str());
@@ -48,14 +59,99 @@ int parse_input(vector<string> inputFiles, string inDir)
 				return 0;
 			}
 
+			// Iterate over the nodes present in the XML
 			for (pugi::xml_node node = doc.child("DOC").first_child(); node; node = node.next_sibling()) {
-				// string s  = node.name();
-				string t =  node.child_value();
-				if(t.length() > 2) {
-					cout << t.substr(1);
+				string nodeName  = node.name();
+				if(nodeName.compare("DOCNO") == 0) {
+					docID = atoi(node.child_value());
 				}
-				else{cout << "*ERROR*";}
+				else if(nodeName.compare("TITLE") == 0) {
+					title = node.child_value();
+					if(title.length() > 2) {
+						title.assign(title.substr(1, title.length() - 2));
+					}
+					else {
+						title.assign("*ERROR*");
+					}
+					strcpy(titleAr, title.c_str());
+				}
+				else if(nodeName.compare("AUTHOR") == 0) {
+					author = node.child_value();
+					if(author.length() > 2) {
+						author.assign(author.substr(1, author.length() - 2));
+					}
+					else {
+						author.assign("*ERROR*");
+					}
+					strcpy(authorAr, author.c_str());
+				}
+				else if(nodeName.compare("BIBLIO") == 0) {
+					biblio = node.child_value();
+					if(biblio.length() > 2) {
+						biblio.assign(biblio.substr(1, biblio.length() - 2));
+					}
+					else {
+						biblio.assign("*ERROR*");
+					}
+					strcpy(biblioAr, biblio.c_str());
+				}
+				else if(nodeName.compare("TEXT") == 0) {
+					text = node.child_value();
+					if(text.length() > 2) {
+						text.assign(text.substr(1, text.length() - 2));
+					}
+					else {
+						text.assign("*ERROR*");
+					}
+				}
 			}
+			
+			// Populate the maps, storing in the JSON format
+			string doc_value = "{\"l\" : \"" + inputFiles.at(n) + "\",\"t\" : \"";
+			string newline(1, '\n');
+			for(unsigned int i = 0; i < strlen(titleAr); i++) {
+				string s(1, titleAr[i]);
+				if(s.compare(newline) != 0) {
+					doc_value.append(s);
+				}
+				else {
+					doc_value.append("\\n");
+				}
+			}
+			doc_value.append("\",\"a\" : \"");
+			for(unsigned int i = 0; i < strlen(authorAr); i++) {
+				string s(1, authorAr[i]);
+				if(s.compare(newline) != 0) {
+					doc_value.append(s);
+				}
+				else {
+					doc_value.append("\\n");
+				}
+			}
+			doc_value.append("\",\"b\" : \"");
+			for(unsigned int i = 0; i < strlen(biblioAr); i++) {
+				string s(1, biblioAr[i]);
+				if(s.compare(newline) != 0) {
+					doc_value.append(s);
+				}
+				else {
+					doc_value.append("\\n");
+				}
+			}
+			doc_value.append("\"}");
+			
+			docInfo[docID] = doc_value;
+			//json::value v = json::parse(doc_value);
+			//std::cout << json::pretty_print(v) << std::endl;
+			//json::value z = v["t"];
+			//cout << json::to_string(z) << endl;
+			//std::cout << "----------" << std::endl;
+			//cout << docInfo[docID] << endl;
+
+		}
+		else {
+			// When it is the default directory.
+			// do nothing
 		}
 	}
 	return 1;

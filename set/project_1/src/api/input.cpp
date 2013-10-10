@@ -4,12 +4,16 @@
 #include "input.h"
 
 #include <iostream>
-#include <string>
+#include <cstring>
 #include <stdio.h>
 #include <vector>
 #include <dirent.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <unistd.h>
+#include <fcntl.h>
+
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 
@@ -62,6 +66,13 @@ int parse_input(vector<string> inputFiles, string inDir)
 	char titleAr[1024], authorAr[1024], biblioAr[1024];
 	map<int, string> docInfo;
 
+	// Open files for writing to
+	int file_docInfo = open("docInfo.dat", O_WRONLY|O_CREAT,0640);
+	if(file_docInfo < 0) {
+		cout << "Could not open docInfo.dat" << endl;
+		return 1;
+	}
+
 	// Open a database
 	sqlite3 *db;
 	char *zErrMsg = 0;
@@ -73,7 +84,7 @@ int parse_input(vector<string> inputFiles, string inDir)
 		sqlite3_close(db);
 		return(1);
   	}
-	rc = sqlite3_exec(db, "create table tbl1(one varchar(10), two smallint);", callback, 0, &zErrMsg);
+	rc = sqlite3_exec(db, "create table docInfo(docID int, doc_value blob);", callback, 0, &zErrMsg);
 	if( rc!=SQLITE_OK ){
 		fprintf(stderr, "SQL error: %s\n", zErrMsg);
 		sqlite3_free(zErrMsg);
@@ -102,6 +113,7 @@ int parse_input(vector<string> inputFiles, string inDir)
 						title.assign(title.substr(1, title.length() - 2));
 					}
 					else {
+						// TODO: Fix this
 						title.assign("*ERROR*");
 					}
 					strcpy(titleAr, title.c_str());
@@ -112,6 +124,7 @@ int parse_input(vector<string> inputFiles, string inDir)
 						author.assign(author.substr(1, author.length() - 2));
 					}
 					else {
+						// TODO: Fix this
 						author.assign("*ERROR*");
 					}
 					strcpy(authorAr, author.c_str());
@@ -122,6 +135,7 @@ int parse_input(vector<string> inputFiles, string inDir)
 						biblio.assign(biblio.substr(1, biblio.length() - 2));
 					}
 					else {
+						// TODO: Fix this
 						biblio.assign("*ERROR*");
 					}
 					strcpy(biblioAr, biblio.c_str());
@@ -132,46 +146,53 @@ int parse_input(vector<string> inputFiles, string inDir)
 						text.assign(text.substr(1, text.length() - 2));
 					}
 					else {
+						// TODO: Fix this
 						text.assign("*ERROR*");
 					}
 				}
 			}
 			
 			// Populate the maps, storing in the JSON format
-			string doc_value = "{\"l\" : \"" + inputFiles.at(n) + "\",\"t\" : \"";
+			string doc_value = "{\"l\" : \"" + absFileName + "\",\"t\" : \"";
 			string newline(1, '\n');
+			string quote("'");
 			for(unsigned int i = 0; i < strlen(titleAr); i++) {
 				string s(1, titleAr[i]);
-				if(s.compare(newline) != 0) {
-					doc_value.append(s);
+				if(s.compare(newline) == 0) {
+					doc_value.append("\\n");
 				}
 				else {
-					doc_value.append("\\n");
+					doc_value.append(s);
 				}
 			}
 			doc_value.append("\",\"a\" : \"");
 			for(unsigned int i = 0; i < strlen(authorAr); i++) {
 				string s(1, authorAr[i]);
-				if(s.compare(newline) != 0) {
-					doc_value.append(s);
+				if(s.compare(newline) == 0) {
+					doc_value.append("\\n");
 				}
 				else {
-					doc_value.append("\\n");
+					doc_value.append(s);
 				}
 			}
 			doc_value.append("\",\"b\" : \"");
 			for(unsigned int i = 0; i < strlen(biblioAr); i++) {
 				string s(1, biblioAr[i]);
-				if(s.compare(newline) != 0) {
-					doc_value.append(s);
+				if(s.compare(newline) == 0) {
+					doc_value.append("\\n");
 				}
 				else {
-					doc_value.append("\\n");
+					doc_value.append(s);
 				}
 			}
 			doc_value.append("\"}");
+						
+			string docID_s = boost::lexical_cast<string>( docID );
+			// Write doc_value into a file
+			string output = docID_s + "|" + doc_value + "\n";
+
+			write(file_docInfo, output.c_str(), output.length());
 			
-			docInfo[docID] = doc_value;
 			//json::value v = json::parse(doc_value);
 			//std::cout << json::pretty_print(v) << std::endl;
 			//json::value z = v["t"];
@@ -185,6 +206,8 @@ int parse_input(vector<string> inputFiles, string inDir)
 			// do nothing
 		}
 	}
+	system("./db/sqlite3/shell.exe -separator '|' ../indexes/db_index.sqlite '.import docInfo.dat docInfo'");
+	close(file_docInfo);
 	sqlite3_close(db);
 	return 0;
 }

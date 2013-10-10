@@ -21,4 +21,4 @@ db/sqlite3/sqlite3.o : db/sqlite3/sqlite3.h db/sqlite3/sqlite3ext.h
 	    $(GCC) $(CFLAGS) db/sqlite3/sqlite3.c -o db/sqlite3/sqlite3.o
 
 clean:
-	    \rm *.o api/*.o parsers/xml/pugixml/src/*.o db/sqlite3/*.o ../indexes/*.sqlite *~ index
+	    \rm *.o api/*.o parsers/xml/pugixml/src/*.o db/sqlite3/*.o ../indexes/*.sqlite docInfo.dat index

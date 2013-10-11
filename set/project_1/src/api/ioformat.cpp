@@ -128,8 +128,8 @@ int createDB() {
 
 // Store the indexes to the DB
 int storeToDB() {
-	system("./db/sqlite3/shell.exe -separator '|' ../indexes/db_index.sqlite '.import docInfo.dat docInfo'");
-	system("./db/sqlite3/shell.exe -separator '|' ../indexes/db_index.sqlite '.import invertedIndex.dat invertedIndex'");
+	system("./db/sqlite3/shell -separator '|' ../indexes/db_index.sqlite '.import docInfo.dat docInfo'");
+	system("./db/sqlite3/shell -separator '|' ../indexes/db_index.sqlite '.import invertedIndex.dat invertedIndex'");
 //	sqlite3 *db;
 //	FILE * pFile;
 //	char sSQL [BUFFER_SIZE] = "\0";
@@ -159,6 +159,7 @@ int storeToDB() {
 //	fclose (pFile);
 //	sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &sErrMsg);
 //	cout << n << " inserts" << endl;
+	return 0;
 }
 
 /**

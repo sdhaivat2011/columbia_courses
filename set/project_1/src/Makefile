@@ -24,4 +24,4 @@ backend/stemming/porter/stem.o : backend/stemming/porter/stem.h
 	    $(GCC) $(CFLAGS) backend/stemming/porter/stem.c -o backend/stemming/porter/stem.o
 
 clean:
-	    \rm *.o api/*.o parsers/xml/pugixml/src/*.o db/sqlite3/*.o backend/stemming/porter/stem.o ../indexes/*.sqlite docInfo.dat invertedIndex.dat index.exe
+	    \rm *.o api/*.o parsers/xml/pugixml/src/*.o db/sqlite3/*.o backend/stemming/porter/stem.o ../indexes/*.sqlite docInfo.dat invertedIndex.dat index

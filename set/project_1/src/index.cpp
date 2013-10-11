@@ -41,7 +41,7 @@ int stemRawText(vector<string> inputFiles, string inDir) {
 			string absFileName = inDir + inputFiles.at(n);
 			//cout << absFileName << endl;
 			FILE * f = fopen(absFileName.c_str(),"r");
-			if(!fout) {
+			if(!f) {
 				cout << "Failed to load " << absFileName << "...exiting now" << endl;
 				return 1;
 			}
@@ -157,11 +157,12 @@ int stemRawText(vector<string> inputFiles, string inDir) {
 					//putchar(ch);
 				}
 			}
+			fclose(f);
 		}
 	}
 
 	FILE * findex = fopen("invertedIndex.dat","w");
-	if(!fout) {
+	if(!findex) {
 		cout << "Failed to load the invertedIndex.dat file...exiting now" << endl;
 		return 1;
 	}

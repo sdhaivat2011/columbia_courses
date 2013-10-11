@@ -47,7 +47,7 @@ vector<string> load_input(const char *p_input) {
  *
  * */
 static int callback(void *NotUsed, int argc, char **argv, char **azColName){
-	int i;
+	int i = 0;
 	for(i=0; i<argc; i++){
 		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
 	}
@@ -68,7 +68,7 @@ void generateStopwords(const char* stopwordFile) {
 	// Reda the stopwords file
 	int fin = ::open(stopwordFile, O_RDONLY);
 	if(fin) {
-		int n;
+		int n = 0;
 		while((n = read(fin, buf, fileSize)) > 0) {
 		        // Do nothing
 		}
@@ -77,10 +77,10 @@ void generateStopwords(const char* stopwordFile) {
 		cout << "Error opening " << stopwordFile << endl;
 	}	
 	close(fin);
-	
+
 	// Store in a map
 	char word[15];        
-	int curr;
+	int curr = 0;
 	for(int i = 0; i < fileSize;) {
 		while(i < fileSize && buf[i] != ' ' && buf[i] != '\0' && buf[i] != '\n') {
 			word[curr] = buf[i];
@@ -101,7 +101,7 @@ int createDB() {
 	// Open a database
 	sqlite3 *db;
 	char *zErrMsg = 0;
-	int rc;
+	int rc = 0;
 
 	rc = sqlite3_open(DB_NAME, &db);
 	if( rc ){

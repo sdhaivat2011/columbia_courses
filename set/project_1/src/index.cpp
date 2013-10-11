@@ -26,7 +26,7 @@ int stemRawText(vector<string> inputFiles, string inDir) {
 	static char * s;
 	s = (char *) malloc(i_max + 1);
 	char docID_ar[DOCNO_MAX_DIGITS];
-	int docID;
+	int docID = 0;
 	FILE * fout = fopen("docInfo.dat","w");
 	if(!fout) {
 		cout << "Failed to load the docInfo.dat file...exiting now" << endl;
@@ -63,7 +63,7 @@ int stemRawText(vector<string> inputFiles, string inDir) {
 							ch = getc(f);
 							cPos++;
 						}
-						int j;
+						int j = 0;
 						for(j = 0; j < DOCNO_MAX_DIGITS; j++) {
 							ch = getc(f);
 							cPos++;

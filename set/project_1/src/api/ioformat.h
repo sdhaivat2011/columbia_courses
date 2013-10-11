@@ -8,6 +8,12 @@
 
 using namespace std;
 
+// Get dI from the JSON object
+int getDIFromJSON(char* inputJSON);
+
+// Query the database for the required term
+char* queryDB(string term);
+
 // Get the absolute filename locations for the provided docno.
 int getDoc(int docNo);
 

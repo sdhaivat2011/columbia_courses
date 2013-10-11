@@ -14,6 +14,13 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
+#ifdef _MSC_VER
+#include <boost/config/compiler/visualc.hpp>
+#endif
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/foreach.hpp>
+#include <cassert>
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
@@ -174,6 +181,7 @@ static int getDocCallback(void *NotUsed, int argc, char **argv, char **azColName
 	}
 	else {
 		cout << "Specified doc not found" << endl;
+		return 1;
 	}
 	return 0;
 }
@@ -191,7 +199,7 @@ int getDoc(int docNo) {
 		sqlite3_close(db);
 		return(1);
   	}
-	// Create the tables
+	// Run the select query
 	string docNo_s = boost::lexical_cast<string>(docNo);
 	string dbQuery = "select doc_value from docInfo where docID=" + docNo_s + ";";
 	rc = sqlite3_exec(db, dbQuery.c_str(), getDocCallback, 0, &zErrMsg);
@@ -214,6 +222,7 @@ static int getDocTitleCallback(void *NotUsed, int argc, char **argv, char **azCo
 	}
 	else {
 		cout << "Specified doc not found" << endl;
+		return 1;
 	}
 	return 0;
 }
@@ -231,7 +240,7 @@ int getDocTitle(int docNo) {
 		sqlite3_close(db);
 		return(1);
   	}
-	// Create the tables
+	// Run the select query
 	string docNo_s = boost::lexical_cast<string>(docNo);
 	string dbQuery = "select doc_value from docInfo where docID=" + docNo_s + ";";
 	rc = sqlite3_exec(db, dbQuery.c_str(), getDocTitleCallback, 0, &zErrMsg);
@@ -240,6 +249,66 @@ int getDocTitle(int docNo) {
 		sqlite3_free(zErrMsg);
 	}
 	return 0;
+}
+
+/**
+ * Callback for queryDB query
+ *
+ * */
+static int queryDBCallback(void* data, int argc, char **argv, char **azColName){
+	if(argv[0]) {
+		char **result_str = (char **)data;
+		*result_str = (char *)calloc(strlen(argv[0]),sizeof(char));
+		strcpy(*result_str,argv[0]);
+	}
+	else {
+		cout << "Specified term not found" << endl;
+		return 1;
+	}
+	return 0;
+}
+
+// Gets the doc specified by looking up the file location in docInfo table
+char* queryDB(string term) {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+	char* data = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		//return(1);
+  	}
+
+	// Run the query
+	string dbQuery = "select term_json from invertedIndex where term=\"" + term + "\";";
+	rc = sqlite3_exec(db, dbQuery.c_str(), queryDBCallback, &data, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	if(data == 0) {
+		return "NULL";
+	}
+	return data;
+}
+
+// get dI from the inputJSON
+int getDIFromJSON(char* inputJSON) {
+	string str(inputJSON);
+	stringstream ss(str);	
+	
+	boost::property_tree::ptree pt;
+	boost::property_tree::read_json(ss, pt);
+
+        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("dC.1.p"))
+        {
+            assert(v.first.empty()); // array elements have no names
+            std::cout << v.second.data() << std::endl;
+        }
 }
 
 /**

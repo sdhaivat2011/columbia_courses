@@ -1,18 +1,22 @@
 OBJS = index.o api/ioformat.o parsers/xml/pugixml/src/pugixml.o db/sqlite3/sqlite3.o backend/stemming/porter/stem.o
 OBJS1 = query.o api/ioformat.o parsers/xml/pugixml/src/pugixml.o db/sqlite3/sqlite3.o backend/stemming/porter/stem.o
+OBJS2 = db/sqlite3/shell.o db/sqlite3/sqlite3.o
 CC = g++
 GCC = gcc
 DEBUG = -g
 CFLAGS = -Wall -c $(DEBUG)
 LFLAGS = -Wall $(DEBUG)
 
-all : index query 
+all : index query shell
 
 index : $(OBJS)
 	    $(CC) $(LFLAGS) $(OBJS) -o index -lpthread -ldl
 
 query : $(OBJS1)
 	    $(CC) $(LFLAGS) $(OBJS1) -o query -lpthread -ldl
+
+shell : $(OBJS2)
+	    $(GCC) $(LFLAGS) $(OBJS2) -o db/sqlite3/shell -lpthread -ldl
 
 index.o : index.cpp api/ioformat.h backend/stemming/porter/stem.h
 	    $(CC) $(CFLAGS) index.cpp
@@ -32,5 +36,8 @@ backend/stemming/porter/stem.o : backend/stemming/porter/stem.h
 query.o : query.cpp api/ioformat.h backend/stemming/porter/stem.h
 	    $(CC) $(CFLAGS) query.cpp
 
+db/sqlite3/shell.o : db/sqlite3/shell.c db/sqlite3/sqlite3.h
+	    $(GCC) $(CFLAGS) db/sqlite3/shell.c -o db/sqlite3/shell.o
+
 clean:
-	    \rm *.o api/*.o parsers/xml/pugixml/src/*.o db/sqlite3/*.o backend/stemming/porter/stem.o ../indexes/*.sqlite docInfo.dat invertedIndex.dat index query
+	    \rm *.o api/*.o parsers/xml/pugixml/src/*.o db/sqlite3/*.o backend/stemming/porter/stem.o ../indexes/*.sqlite docInfo.dat invertedIndex.dat index query db/sqlite3/shell

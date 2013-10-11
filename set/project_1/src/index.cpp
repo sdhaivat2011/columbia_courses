@@ -202,6 +202,8 @@ int main(int argc, char* argv[]) {
 		cout << "Usage: " << argv[0] << " <input_dir>" << endl;
 		return 1;
 	}
+	system("rm -rf ../indexes/*.sqlite");
+	system("rm -rf *.dat");
 	cout << "Starting the indexing process..." << endl;
 	cout << "Getting the files to be processed..." << endl;
 	vector<string> inputFiles = load_input(argv[1]);

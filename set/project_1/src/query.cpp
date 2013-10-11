@@ -168,11 +168,14 @@ void defaultQuery(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<
 		}
 	}
 	std::sort(docUnion.begin(), docUnion.end(), boost::bind(&std::pair<int, int>::second, _1) > boost::bind(&std::pair<int, int>::second, _2));
-	cout << "Ordered set of docs; format<docno, score>" << endl;
+	cout << "\nOrdered set of docs in which the query was found; format<docno, score>" << endl;
 	for(unsigned int i = 0; i < docUnion.size(); i++) {
 		cout << docUnion.at(i).first << ":" << docUnion.at(i).second << " ";
 	}
-	cout << endl << "Displaying snippets of top 5 results" << endl; 
+	cout << endl << "\nDisplaying snippets of top 5 results" << endl;
+	for(unsigned int i = 0; i < docUnion.size() && i < 5; i++) {
+		//getDocSnippet();
+	}
 }
 void getDocFreq(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<string, pair<int,int> > > stemQueryTerms) {
 	cout << "inside getDocFreq" << endl;

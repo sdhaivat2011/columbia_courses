@@ -8,8 +8,11 @@
 
 using namespace std;
 
+// Get total number of docs in the corpus
+int getTotalDocCount();
+
 // Get dI from the JSON object
-int getDIFromJSON(char* inputJSON);
+vector<pair<int, pair<int,vector<int> > > > parseJSON(char* inputJSON);
 
 // Query the database for the required term
 char* queryDB(string term);

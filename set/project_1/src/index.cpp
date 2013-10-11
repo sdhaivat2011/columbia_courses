@@ -38,7 +38,7 @@ int stemRawText(vector<string> inputFiles, string inDir) {
 	for(unsigned n = 0; n < inputFiles.size(); n++) {
 	// Do not consider the deafult directories
 		if((inputFiles.at(n).compare(".") != 0) && (inputFiles.at(n).compare("..") != 0)) {
-			string absFileName = inDir + inputFiles.at(n);
+			string absFileName = inDir + "/" + inputFiles.at(n);
 			//cout << absFileName << endl;
 			FILE * f = fopen(absFileName.c_str(),"r");
 			if(!f) {
@@ -173,7 +173,15 @@ int stemRawText(vector<string> inputFiles, string inDir) {
 //		std::cout << (*it).first << "" term " << endl;
 		for(std::vector<pair<int,string> >::iterator it1 = (*it).second.begin() ; it1 != (*it).second.end(); ++it1) {
 			string docid_s = boost::lexical_cast<string>((*it1).first);
-			string str_append = "\"" + docid_s + "\":{\"p\":[" + (*it1).second + "]}";
+			const char* postingList = (*it1).second.c_str();
+			int num = 0;
+			for (unsigned int curr = 0; curr < strlen(postingList); curr++) {
+				if(postingList[curr] == ',') {
+					num++;
+				}
+			}
+			string num_s = boost::lexical_cast<string>(num + 1);
+			string str_append = "\"" + docid_s + "\":{\"l\":" + num_s + ",\"p\":[" + (*it1).second + "]}";
 			outJson.append(str_append);
 			if(it1 != (*it).second.end() - 1) {outJson.append(",");}
 			//std::cout << (*it1).first << " " << (*it1).second << endl;

@@ -297,19 +297,84 @@ char* queryDB(string term) {
 }
 
 // get dI from the inputJSON
-int getDIFromJSON(char* inputJSON) {
+vector<pair<int, pair<int,vector<int> > > > parseJSON(char* inputJSON) {
 	string str(inputJSON);
-	stringstream ss(str);	
+	stringstream ss(str);
+	vector<pair<int, pair<int,vector<int> > > > docs;
 	
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_json(ss, pt);
 
-        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("dC.1.p"))
+        BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("dI"))
         {
-            assert(v.first.empty()); // array elements have no names
-            std::cout << v.second.data() << std::endl;
+		pair<int, pair<int,vector<int> > > docsTmp;
+		vector<int> positions;
+
+		assert(v.first.empty()); // array elements have no names
+		int i = v.second.get<int>("");
+
+		string i_s = boost::lexical_cast<string>(i);
+		string nodeName_len = "dC." + i_s + ".l";
+		string nodeName_pos = "dC." + i_s + ".p";
+		int len = pt.get<int>(nodeName_len);
+		
+		BOOST_FOREACH(boost::property_tree::ptree::value_type &v1, pt.get_child(nodeName_pos)) {
+			assert(v1.first.empty()); // array elements have no names
+			int j = v1.second.get<int>("");
+			positions.push_back(j);
+		}
+
+		docsTmp = make_pair(i, make_pair(len, positions));
+		docs.push_back(docsTmp);
         }
+	return docs;
 }
+
+/**
+ * Callback for getTotalDocCount query
+ *
+ * */
+static int getTotalDocCountCallback(void* data, int argc, char **argv, char **azColName){
+	if(argv[0]) {
+		char **result_str = (char **)data;
+		*result_str = (char *)calloc(strlen(argv[0]),sizeof(char));
+		strcpy(*result_str,argv[0]);
+	}
+	else {
+		cout << "Specified term not found" << endl;
+		return 1;
+	}
+	return 0;
+}
+
+// Gets the doc specified by looking up the file location in docInfo table
+int getTotalDocCount() {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+	char* data = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		//return(1);
+  	}
+
+	// Run the query
+	string dbQuery = "select count(*) from docInfo;";
+	rc = sqlite3_exec(db, dbQuery.c_str(), getTotalDocCountCallback, &data, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	if(data == 0) {
+		return 0;
+	}
+	return atoi(data);
+}
+
 
 /**
  * Takes files as input

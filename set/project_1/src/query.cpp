@@ -5,10 +5,14 @@
 #include <cstring>
 #include <vector>
 #include <stdlib.h>
+#include <algorithm>
+#include <boost/bind.hpp>
 
 #define BUF_SIZE 256
 
 using namespace std;
+
+vector<int> allDocs;
 
 // Parses the query and breaks into tokens
 vector<pair<string, pair<int,int> > > parseQuery(const char* queryInput) {
@@ -64,20 +68,112 @@ vector<pair<string, pair<int,int> > > parseQuery(const char* queryInput) {
 }
 
 void defaultQuery(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<string, pair<int,int> > > stemQueryTerms) {
+	vector<pair<int,int> > docUnion; // The doc no. and the score
 	for(unsigned int i = 0; i < stemQueryTerms.size(); i++) {
-		//cout << queryTerms.at(i).first << " " << queryTerms.at(i).second.first << " " << queryTerms.at(i).second.second << endl;	
-		if(stemQueryTerms.at(i).second.first == 0) {
+		if(stemQueryTerms.at(i).second.first == 0) { // Meaning it is not a compound word
 			char* result = queryDB(stemQueryTerms.at(i).first);
 			if(strcmp(result, "NULL") == 0) {
 				cout << "Term not found" << endl;
 			}
 			else {
-				getDIFromJSON(result);
+				vector<pair<int, pair<int,vector<int> > > > vStruct = parseJSON(result);
+
+				if(stemQueryTerms.at(i).second.second == 0) { // Meaning it is not a negation
+					if(docUnion.size() == 0) { // Meaning this is the first set being added
+						for(unsigned int j = 0; j < vStruct.size(); j++) {
+							pair<int,int> tmp = make_pair(vStruct.at(j).first,vStruct.at(j).second.first);
+							docUnion.push_back(tmp);
+						}
+					}
+					else { // Adding to an already existing set
+						vector<pair<int,int> > tmp;
+						
+						//it = set_union(tmp.begin(), tmp.end(), v.begin(), v.end(), docUnion.begin());
+						unsigned int j = 0, k = 0, p = 0;
+						while(j < docUnion.size() && k < vStruct.size()) {
+							if(docUnion.at(j).first < vStruct.at(k).first) {
+								tmp.push_back(docUnion.at(j));
+								j++;
+							}
+							else if(docUnion.at(j).first > vStruct.at(k).first) {
+								tmp.push_back(make_pair(vStruct.at(k).first, vStruct.at(k).second.first));
+								k++;
+							}
+							else {
+								tmp.push_back(make_pair(docUnion.at(j).first, docUnion.at(j).second + vStruct.at(k).second.first));
+								j++;
+								k++;
+							}
+							p++;
+						}
+						while(j < docUnion.size()) {
+							tmp.push_back(docUnion.at(j));
+							j++;
+							p++;
+						}
+						while(k < vStruct.size()) {
+							tmp.push_back(make_pair(vStruct.at(k).first, vStruct.at(k).second.first));
+							k++;
+							p++;
+						}
+						tmp.resize(p);
+						docUnion.resize(p);
+						docUnion = tmp;
+						//docUnion.resize(it - docUnion.begin());
+					}
+				}
+				else { // Meaning that there is a negation
+					if(docUnion.size() == 0) { // Meaning this is the first set being added
+						unsigned int j = 0, p = 1;
+						while(j < vStruct.size()) {
+							if(vStruct.at(j).first != p) {
+								docUnion.push_back(make_pair(p, 1));
+							}
+							else {
+								j++;
+							}
+							p++;
+						}
+						while(p <= allDocs.size()) {
+							docUnion.push_back(make_pair(p, 1));
+							p++;
+						}
+					}
+					else {
+						unsigned int j = 0, p = 1, q = 0;
+						vector<pair<int,int> > tmp;
+						while(j < vStruct.size() && q < docUnion.size() && p <= allDocs.size()) {
+							if(p != vStruct.at(j).first && p != docUnion.at(q).first) {
+								tmp.push_back(make_pair(p, 1));
+								p++;
+							}
+							else if(p == vStruct.at(j).first && p != docUnion.at(q).first) {
+								j++; p++;
+							}
+							else if(p != vStruct.at(j).first && p == docUnion.at(q).first) {
+								tmp.push_back(make_pair(p, 1+docUnion.at(q).second));								
+								q++;p++;
+							}
+							else {
+								tmp.push_back(make_pair(p, docUnion.at(q).second));
+								j++;p++;q++;
+							}
+						}
+					}
+				}
 			}
 		}
+		else { // Compound words present
+//			char* result = queryDB(stemQueryTerms.at(i).first);
+		}
 	}
+	std::sort(docUnion.begin(), docUnion.end(), boost::bind(&std::pair<int, int>::second, _1) > boost::bind(&std::pair<int, int>::second, _2));
+	cout << "Ordered set of docs; format<docno, score>" << endl;
+	for(unsigned int i = 0; i < docUnion.size(); i++) {
+		cout << docUnion.at(i).first << ":" << docUnion.at(i).second << " ";
+	}
+	cout << endl << "Displaying snippets of top 5 results" << endl; 
 }
-
 void getDocFreq(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<string, pair<int,int> > > stemQueryTerms) {
 	cout << "inside getDocFreq" << endl;
 }
@@ -151,8 +247,16 @@ void processQuery(const char* queryInput) {
 	}
 }
 
+// Array holding the indexes of all the docIDs in the corpus, helpful for set operations
+void generateCorpusVector(int totalDocCount) {
+	for(unsigned int i = 0; i < totalDocCount; i++)
+		allDocs.push_back(i+1);
+}
+
 int main() {
 	string queryInput_s;
+	int totalDocCount = getTotalDocCount();
+	generateCorpusVector(totalDocCount);
 	while(true) {
 		cout << "\n\nEnter a query (.exit to exit): " << endl;
 		getline(cin, queryInput_s);

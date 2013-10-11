@@ -163,6 +163,86 @@ int storeToDB() {
 }
 
 /**
+ * Callback for getDoc query
+ *
+ * */
+static int getDocCallback(void *NotUsed, int argc, char **argv, char **azColName){
+	if(argv[0]) {
+		string fileName(argv[0]);
+		string cmd = "cat " + fileName + "| less";
+		system(cmd.c_str());
+	}
+	else {
+		cout << "Specified doc not found" << endl;
+	}
+	return 0;
+}
+
+// Gets the doc specified by looking up the file location in docInfo table
+int getDoc(int docNo) {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return(1);
+  	}
+	// Create the tables
+	string docNo_s = boost::lexical_cast<string>(docNo);
+	string dbQuery = "select doc_value from docInfo where docID=" + docNo_s + ";";
+	rc = sqlite3_exec(db, dbQuery.c_str(), getDocCallback, 0, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}	
+	return 0;
+}
+
+/**
+ * Callback for getDocTitle query
+ *
+ * */
+static int getDocTitleCallback(void *NotUsed, int argc, char **argv, char **azColName){
+	if(argv[0]) {
+		pugi::xml_document doc;
+		pugi::xml_parse_result result = doc.load_file(argv[0]);
+		cout << doc.child("DOC").child_value("TITLE");
+	}
+	else {
+		cout << "Specified doc not found" << endl;
+	}
+	return 0;
+}
+
+// Gets the doc specified by looking up the file location in docInfo table
+int getDocTitle(int docNo) {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return(1);
+  	}
+	// Create the tables
+	string docNo_s = boost::lexical_cast<string>(docNo);
+	string dbQuery = "select doc_value from docInfo where docID=" + docNo_s + ";";
+	rc = sqlite3_exec(db, dbQuery.c_str(), getDocTitleCallback, 0, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	return 0;
+}
+
+/**
  * Takes files as input
  * Parses the XML documents
  * Creates a map of the features that need to be indexed

@@ -8,6 +8,12 @@
 
 using namespace std;
 
+// Get the absolute filename locations for the provided docno.
+int getDoc(int docNo);
+
+// Get the absolute title of the docno specified
+int getDocTitle(int docNo);
+
 // Map to store the document specific characteristics for a particular term
 extern map<string, vector<pair<int, string> > > docChar;
 

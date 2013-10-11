@@ -1,4 +1,4 @@
-OBJS = index.o api/input.o parsers/xml/pugixml/src/pugixml.o db/sqlite3/sqlite3.o backend/stemming/porter/stem.o
+OBJS = index.o api/ioformat.o parsers/xml/pugixml/src/pugixml.o db/sqlite3/sqlite3.o backend/stemming/porter/stem.o
 CC = g++
 GCC = gcc
 DEBUG = -g
@@ -8,11 +8,11 @@ LFLAGS = -Wall $(DEBUG)
 index : $(OBJS)
 	    $(CC) $(LFLAGS) $(OBJS) -o index
 
-index.o : index.cpp api/input.h backend/stemming/porter/stem.h
+index.o : index.cpp api/ioformat.h backend/stemming/porter/stem.h
 	    $(CC) $(CFLAGS) index.cpp
 
-api/input.o : api/input.h api/input.cpp parsers/xml/pugixml/src/pugixml.hpp db/sqlite3/sqlite3.h
-	    $(CC) $(CFLAGS) api/input.cpp -o api/input.o
+api/ioformat.o : api/ioformat.h api/ioformat.cpp parsers/xml/pugixml/src/pugixml.hpp db/sqlite3/sqlite3.h
+	    $(CC) $(CFLAGS) api/ioformat.cpp -o api/ioformat.o
 
 parsers/xml/pugixml/src/pugixml.o : parsers/xml/pugixml/src/pugixml.hpp
 	    $(CC) $(CFLAGS) parsers/xml/pugixml/src/pugixml.cpp -o parsers/xml/pugixml/src/pugixml.o
@@ -24,4 +24,4 @@ backend/stemming/porter/stem.o : backend/stemming/porter/stem.h
 	    $(GCC) $(CFLAGS) backend/stemming/porter/stem.c -o backend/stemming/porter/stem.o
 
 clean:
-	    \rm *.o api/*.o parsers/xml/pugixml/src/*.o db/sqlite3/*.o backend/stemming/porter/stem.o ../indexes/*.sqlite docInfo.dat index
+	    \rm *.o api/*.o parsers/xml/pugixml/src/*.o db/sqlite3/*.o backend/stemming/porter/stem.o ../indexes/*.sqlite docInfo.dat invertedIndex.dat index.exe

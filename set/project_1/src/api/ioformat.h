@@ -3,8 +3,8 @@
 #include <map>
 #include <utility>
 
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef IOFORMAT_H
+#define IOFORMAT_H
 
 using namespace std;
 

@@ -159,7 +159,6 @@ int storeToDB() {
 //	fclose (pFile);
 //	sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &sErrMsg);
 //	cout << n << " inserts" << endl;
-	return 0;
 }
 
 /**

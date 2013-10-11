@@ -1,4 +1,4 @@
-#include "api/input.h"
+#include "api/ioformat.h"
 #include "backend/stemming/porter/stem.h"
 
 #include <stdio.h>
@@ -160,13 +160,29 @@ void stemRawText(vector<string> inputFiles, string inDir) {
 //	for(std::vector<pair<int,string> >::iterator it = docChar["experiment"].begin() ; it != docChar["experiment"].end(); ++it) {
 //		std::cout << (*it).first << " id, " << (*it).second << "positions" << endl;
 //	}
+//	for(map<string, vector<pair<int, string> > >::iterator it = docChar.begin(); it != docChar.end(); ++it) {
+//		std::cout << (*it).first << "" term " << endl;
+//		for(std::vector<pair<int,string> >::iterator it1 = (*it).second.begin() ; it1 != (*it).second.end(); ++it1) {
+//			std::cout << (*it1).first << " " << (*it1).second << endl;
+//		}
+//	}
+	FILE * findex = fopen("invertedIndex.dat","w");
 	for(map<string, vector<pair<int, string> > >::iterator it = docChar.begin(); it != docChar.end(); ++it) {
-		std::cout << (*it).first << "" term " << endl;
+		string term = (*it).first;
+		string outJson = term + "|{\"dI\":[" + docList[term] + "],\"dC\":{";
+//		std::cout << (*it).first << "" term " << endl;
 		for(std::vector<pair<int,string> >::iterator it1 = (*it).second.begin() ; it1 != (*it).second.end(); ++it1) {
-			std::cout << (*it1).first << " " << (*it1).second << endl;
+			string docid_s = boost::lexical_cast<string>((*it1).first);
+			string str_append = "\"" + docid_s + "\":{\"p\":[" + (*it1).second + "]}";
+			outJson.append(str_append);
+			if(it1 != (*it).second.end() - 1) {outJson.append(",");}
+			//std::cout << (*it1).first << " " << (*it1).second << endl;
 		}
+		outJson.append("}}\n");
+		fwrite(outJson.c_str(), sizeof(char), strlen(outJson.c_str()), findex);
+//		cout << outJson << endl;
 	}
-
+	fclose(findex);
 	//std::cout << '\n';
 	fclose(fout);	
 }

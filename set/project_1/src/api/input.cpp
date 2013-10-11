@@ -20,9 +20,7 @@ using namespace std;
 
 #define DB_NAME "../indexes/db_index.sqlite"
 
-map<string, vector<int> > docList;
 map<string, int> stopwords;
-
 
 /**
  * Takes a directory as input
@@ -96,6 +94,65 @@ void generateStopwords(const char* stopwordFile) {
 		curr = 0;
 		i++;
 	}
+}
+
+// Create a sqlite DB to store the index tables.
+int createDB() {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return(1);
+  	}
+	// Create the table
+	rc = sqlite3_exec(db, "create table docInfo(docID int, doc_value varchar(100));", callback, 0, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	sqlite3_close(db);
+	return 0;
+}
+
+#define BUFFER_SIZE 256
+
+// Store the indexes to the DB
+int storeToDB() {
+	system("./db/sqlite3/shell.exe -separator '|' ../indexes/db_index.sqlite '.import docInfo.dat docInfo'");
+//	sqlite3 *db;
+//	FILE * pFile;
+//	char sSQL [BUFFER_SIZE] = "\0";
+//	char sInputBuf [BUFFER_SIZE] = "\0";
+//	sqlite3_stmt * stmt;
+//	char * sErrMsg = 0;
+//	const char * tail = 0;
+//	int n;
+//	system("wc -l docInfo.dat");
+//	
+//	sqlite3_open(DB_NAME, &db);
+//	sprintf(sSQL, "INSERT INTO docInfo VALUES(@dI, @dV)");
+//	sqlite3_prepare_v2(db,  sSQL, BUFFER_SIZE, &stmt, &tail);
+//	sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &sErrMsg);
+//	pFile = fopen ("docInfo.dat","r");
+//	while (!feof(pFile)) {
+//	        fgets (sInputBuf, BUFFER_SIZE, pFile);
+
+//		sqlite3_bind_text(stmt, 1, strtok(sInputBuf, "|"), -1, SQLITE_TRANSIENT); /* Get docID */
+//		sqlite3_bind_text(stmt, 2, strtok(NULL, "\n"), -1, SQLITE_TRANSIENT);  /* Get doc_value */
+//		
+//		sqlite3_step(stmt);     /* Execute the SQL Statement */
+//		sqlite3_clear_bindings(stmt);   /* Clear bindings */
+//		sqlite3_reset(stmt);        /* Reset VDBE */
+//		n++;
+//	}
+//	fclose (pFile);
+//	sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &sErrMsg);
+//	cout << n << " inserts" << endl;
 }
 
 /**

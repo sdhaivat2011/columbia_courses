@@ -1,0 +1,38 @@
+digraph G
+{
+ // INTERACTIVE_SVG=YES
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node1 [label="json::exception",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d4/dd1/classjson_1_1exception.html"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node2 [label="json::boolean_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d2/d66/classjson_1_1boolean__expected.html"];
+  Node1 -> Node3 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node3 [label="json::brace_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d1/d41/classjson_1_1brace__expected.html"];
+  Node1 -> Node4 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node4 [label="json::bracket_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d9/d22/classjson_1_1bracket__expected.html"];
+  Node1 -> Node5 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node5 [label="json::colon_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$da/d6c/classjson_1_1colon__expected.html"];
+  Node1 -> Node6 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node6 [label="json::hex_character_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d5/dfb/classjson_1_1hex__character__expected.html"];
+  Node1 -> Node7 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node7 [label="json::invalid_index",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d6/d63/classjson_1_1invalid__index.html"];
+  Node1 -> Node8 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node8 [label="json::invalid_number",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d9/df5/classjson_1_1invalid__number.html"];
+  Node1 -> Node9 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node9 [label="json::invalid_type_cast",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$de/dd4/classjson_1_1invalid__type__cast.html"];
+  Node1 -> Node10 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node10 [label="json::invalid_unicode_character",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$dd/d24/classjson_1_1invalid__unicode__character.html"];
+  Node1 -> Node11 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node11 [label="json::invalid_utf8_string",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$df/d2c/classjson_1_1invalid__utf8__string.html"];
+  Node1 -> Node12 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node12 [label="json::keyword_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d0/dad/classjson_1_1keyword__expected.html"];
+  Node1 -> Node13 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node13 [label="json::quote_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$dc/d9b/classjson_1_1quote__expected.html"];
+  Node1 -> Node14 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node14 [label="json::string_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$da/da5/classjson_1_1string__expected.html"];
+  Node1 -> Node15 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node15 [label="json::utf16_surrogate_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d3/d55/classjson_1_1utf16__surrogate__expected.html"];
+  Node1 -> Node16 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node16 [label="json::value_expected",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$d1/d93/classjson_1_1value__expected.html"];
+}

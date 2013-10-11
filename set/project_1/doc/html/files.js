@@ -1,12 +1,28 @@
 var files =
 [
+    [ "src/index.cpp", "db/d14/index_8cpp.html", "db/d14/index_8cpp" ],
     [ "src/README.md", "d9/dd6/_r_e_a_d_m_e_8md.html", null ],
+    [ "src/api/ioformat.cpp", "d2/d50/ioformat_8cpp.html", "d2/d50/ioformat_8cpp" ],
+    [ "src/api/ioformat.h", "d1/d6d/ioformat_8h.html", "d1/d6d/ioformat_8h" ],
     [ "src/api/README.md", "d3/dcf/api_2_r_e_a_d_m_e_8md.html", null ],
     [ "src/backend/stemming/README.md", "d0/da5/backend_2stemming_2_r_e_a_d_m_e_8md.html", null ],
     [ "src/backend/stemming/porter/README.md", "d2/d45/backend_2stemming_2porter_2_r_e_a_d_m_e_8md.html", null ],
     [ "src/backend/stemming/porter/stem.c", "dd/df8/stem_8c.html", "dd/df8/stem_8c" ],
+    [ "src/backend/stemming/porter/stem.h", "dc/d93/stem_8h.html", "dc/d93/stem_8h" ],
     [ "src/db/README.md", "d3/d4d/db_2_r_e_a_d_m_e_8md.html", null ],
     [ "src/db/sqlite3/README.md", "d7/d91/db_2sqlite3_2_r_e_a_d_m_e_8md.html", null ],
+    [ "src/db/sqlite3/shell.c", "d6/d4f/shell_8c.html", "d6/d4f/shell_8c" ],
+    [ "src/db/sqlite3/sqlite3.c", "db/d1b/sqlite3_8c.html", "db/d1b/sqlite3_8c" ],
+    [ "src/db/sqlite3/sqlite3.h", "de/dd3/sqlite3_8h.html", "de/dd3/sqlite3_8h" ],
+    [ "src/db/sqlite3/sqlite3ext.h", "d1/db0/sqlite3ext_8h.html", "d1/db0/sqlite3ext_8h" ],
     [ "src/parsers/README.md", "df/d97/parsers_2_r_e_a_d_m_e_8md.html", null ],
-    [ "src/parsers/xml/pugixml/README.md", "da/d3e/parsers_2xml_2pugixml_2_r_e_a_d_m_e_8md.html", null ]
+    [ "src/parsers/json/cpp-json/json.h", "d4/d05/json_8h.html", "d4/d05/json_8h" ],
+    [ "src/parsers/json/cpp-json/README.md", "d8/d05/parsers_2json_2cpp-json_2_r_e_a_d_m_e_8md.html", null ],
+    [ "src/parsers/json/cpp-json/json/array.h", "db/d63/array_8h.html", "db/d63/array_8h" ],
+    [ "src/parsers/json/cpp-json/json/exception.h", "dd/d2d/exception_8h.html", null ],
+    [ "src/parsers/json/cpp-json/json/object.h", "de/d10/object_8h.html", "de/d10/object_8h" ],
+    [ "src/parsers/json/cpp-json/json/token.h", "d1/d07/token_8h.html", null ],
+    [ "src/parsers/json/cpp-json/json/value.h", "d4/d3f/value_8h.html", null ],
+    [ "src/parsers/xml/pugixml/README.md", "da/d3e/parsers_2xml_2pugixml_2_r_e_a_d_m_e_8md.html", null ],
+    [ "src/parsers/xml/pugixml/src/pugixml.cpp", "db/d20/pugixml_8cpp.html", "db/d20/pugixml_8cpp" ]
 ];

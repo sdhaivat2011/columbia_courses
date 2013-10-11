@@ -20,7 +20,7 @@ using namespace std;
 map<string, string > docList;
 map<string, vector<pair<int, string> > > docChar;
 
-void stemRawText(vector<string> inputFiles, string inDir) {
+int stemRawText(vector<string> inputFiles, string inDir) {
 	int INC = 50;
 	int i_max = INC;
 	static char * s;
@@ -28,6 +28,10 @@ void stemRawText(vector<string> inputFiles, string inDir) {
 	char docID_ar[DOCNO_MAX_DIGITS];
 	int docID;
 	FILE * fout = fopen("docInfo.dat","w");
+	if(!fout) {
+		cout << "Failed to load the docInfo.dat file...exiting now" << endl;
+		return 1;
+	}
 
 	//doStemming(fileName.c_str(), "tmp");
 	struct stemmer * z = create_stemmer();
@@ -37,6 +41,10 @@ void stemRawText(vector<string> inputFiles, string inDir) {
 			string absFileName = inDir + inputFiles.at(n);
 			//cout << absFileName << endl;
 			FILE * f = fopen(absFileName.c_str(),"r");
+			if(!fout) {
+				cout << "Failed to load " << absFileName << "...exiting now" << endl;
+				return 1;
+			}
 			int cPos = 0;
 			while(true)
 			{
@@ -114,11 +122,6 @@ void stemRawText(vector<string> inputFiles, string inDir) {
 						}
 						else {
 							string str_append(docID_ar);
-//							cout << str_append << " add " << endl;
-//							cout << docList[s] << " existing " << endl;
-//							cout << docList[s].substr(docList[s].length() - str_append.length()) << " substr " << endl;
-							//vector<int>::iterator it = (v.end() -1);
-							//cout << "it : " << *it << " docID: " << docID << endl;
 							if(docList[s].length() >= str_append.length()) {
 								if(/* *it != docID*/docList[s].substr(docList[s].length() - str_append.length()).compare(str_append) != 0) {
 									docList[s].append("," + str_append);
@@ -156,17 +159,13 @@ void stemRawText(vector<string> inputFiles, string inDir) {
 			}
 		}
 	}
-//	cout << "pos4" << endl;
-//	for(std::vector<pair<int,string> >::iterator it = docChar["experiment"].begin() ; it != docChar["experiment"].end(); ++it) {
-//		std::cout << (*it).first << " id, " << (*it).second << "positions" << endl;
-//	}
-//	for(map<string, vector<pair<int, string> > >::iterator it = docChar.begin(); it != docChar.end(); ++it) {
-//		std::cout << (*it).first << "" term " << endl;
-//		for(std::vector<pair<int,string> >::iterator it1 = (*it).second.begin() ; it1 != (*it).second.end(); ++it1) {
-//			std::cout << (*it1).first << " " << (*it1).second << endl;
-//		}
-//	}
+
 	FILE * findex = fopen("invertedIndex.dat","w");
+	if(!fout) {
+		cout << "Failed to load the invertedIndex.dat file...exiting now" << endl;
+		return 1;
+	}
+	cout << "Generating the invertedIndex data..." << endl;
 	for(map<string, vector<pair<int, string> > >::iterator it = docChar.begin(); it != docChar.end(); ++it) {
 		string term = (*it).first;
 		string outJson = term + "|{\"dI\":[" + docList[term] + "],\"dC\":{";
@@ -184,7 +183,8 @@ void stemRawText(vector<string> inputFiles, string inDir) {
 	}
 	fclose(findex);
 	//std::cout << '\n';
-	fclose(fout);	
+	fclose(fout);
+	return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -193,10 +193,15 @@ int main(int argc, char* argv[]) {
 		cout << "Usage: " << argv[0] << " <input_dir>" << endl;
 		return 1;
 	}
+	cout << "Starting the indexing process..." << endl;
+	cout << "Getting the files to be processed..." << endl;
 	vector<string> inputFiles = load_input(argv[1]);
+	cout << "Creating the database to store the index files..." << endl;
 	if(createDB() != 0) return 1;
+	cout << "Loading the stopwords..." << endl;
 	generateStopwords(STOPWORDS_FILE);
-	stemRawText(inputFiles, argv[1]);
+	cout << "Starting to stem the text..." << endl;
+	if(stemRawText(inputFiles, argv[1]) != 0) return 1;
 	int parse_success = parse_input(inputFiles, argv[1]);
 	if(!parse_success) {
 
@@ -205,7 +210,7 @@ int main(int argc, char* argv[]) {
 		cout << "Failed to parse...exiting index" << endl;
 		return 1;
 	}
-
+	cout << "Storing into the database..." << endl;
 	storeToDB();	
 
 	return 0;

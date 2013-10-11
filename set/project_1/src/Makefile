@@ -6,7 +6,7 @@ CFLAGS = -Wall -c $(DEBUG)
 LFLAGS = -Wall $(DEBUG)
 
 index : $(OBJS)
-	    $(CC) $(LFLAGS) $(OBJS) -o index
+	    $(CC) $(LFLAGS) $(OBJS) -o index -lpthread -ldl
 
 index.o : index.cpp api/ioformat.h backend/stemming/porter/stem.h
 	    $(CC) $(CFLAGS) index.cpp

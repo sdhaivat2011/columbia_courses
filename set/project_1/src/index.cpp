@@ -9,6 +9,8 @@
 #include <ctype.h>
 #include <fstream>
 #include <utility>
+#include <sys/time.h>
+#include <unistd.h>
 #include <boost/lexical_cast.hpp>
 
 using namespace std;
@@ -204,6 +206,10 @@ int main(int argc, char* argv[]) {
 	}
 	system("rm -rf ../indexes/*.sqlite");
 	system("rm -rf *.dat");
+	struct timeval start, end;
+	long mtime, seconds, useconds;    
+	gettimeofday(&start, NULL);
+
 	cout << "Starting the indexing process..." << endl;
 	cout << "Getting the files to be processed..." << endl;
 	vector<string> inputFiles = load_input(argv[1]);
@@ -214,7 +220,15 @@ int main(int argc, char* argv[]) {
 	cout << "Starting to stem the text..." << endl;
 	if(stemRawText(inputFiles, argv[1]) != 0) return 1;
 	cout << "Storing into the database..." << endl;
-	storeToDB();	
+	storeToDB();
 
+	gettimeofday(&end, NULL);
+	seconds  = end.tv_sec  - start.tv_sec;
+	useconds = end.tv_usec - start.tv_usec;
+
+	mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
+	mtime /= 1000;
+
+	printf("\nElapsed time: %ld seconds\n", mtime);
 	return 0;
 }

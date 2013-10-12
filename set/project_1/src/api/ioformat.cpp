@@ -346,6 +346,70 @@ int getTotalDocCount() {
 	return atoi(data);
 }
 
+
+unsigned int edit_distance(char* s1, char* s2)
+{
+        const size_t len1 = strlen(s1), len2 = strlen(s2);
+        vector<vector<unsigned int> > d(len1 + 1, vector<unsigned int>(len2 + 1));
+ 
+        d[0][0] = 0;
+        for(unsigned int i = 1; i <= len1; ++i) d[i][0] = i;
+        for(unsigned int i = 1; i <= len2; ++i) d[0][i] = i;
+ 
+        for(unsigned int i = 1; i <= len1; ++i)
+                for(unsigned int j = 1; j <= len2; ++j)
+ 
+                      d[i][j] = std::min( std::min(d[i - 1][j] + 1,d[i][j - 1] + 1),
+                                          d[i - 1][j - 1] + (s1[i - 1] == s2[j - 1] ? 0 : 1) );
+        return d[len1][len2];
+}
+
+static int getSimilarityDBCallback(void* term, int argc, char **argv, char **azColName){
+	int i = 0;
+	char* min1_s = "";
+	char* min2_s = "";
+	int min1 = 100, min2 = 100;
+	for(i=0; i<argc; i++){
+		int j = edit_distance((char*)term, argv[i]);
+		if(j < min2) {
+			min2 = j;
+			strcpy(min2_s,argv[i]);
+		}
+		if(j < min1) {
+			min2 = min1;
+			strcpy(min2_s,min1_s);
+			min1 = j;
+			strcpy(min1_s,argv[i]);
+		}
+	}
+	cout << min1_s << endl;
+	cout << min2_s << endl;
+	return 0;
+}
+
+
+void getSimilarityDB(char* term) {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		//return(1);
+  	}
+
+	// Run the query
+	string dbQuery = "select term from invertedIndex;";
+	rc = sqlite3_exec(db, dbQuery.c_str(), getSimilarityDBCallback, term, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+}
+
 /**
  * Callback for getFreqDB query
  *

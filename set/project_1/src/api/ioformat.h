@@ -14,6 +14,8 @@ void getTermFreqDB(string term, int docNo);
 // Get the total occurence freq of the term
 void getFreqDB(string term);
 
+// Get similarity score based on edit distance
+void getSimilarityDB(char* term);
 
 // Gets the occurence freq of the term in no of docs 
 void getDocFreqDB(string term);

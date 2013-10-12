@@ -170,6 +170,7 @@ void defaultQuery(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<
 			}
 		}
 		else { // Compound words present
+			cout << "Compound words not handled" << endl;
 //			char* result = queryDB(stemQueryTerms.at(i).first);
 		}
 	}
@@ -192,6 +193,9 @@ void getDocFreq(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<st
 	if(stemQueryTerms.at(1).second.first == 0) { // Not a compound word
 		getDocFreqDB(stemQueryTerms.at(1).first);
 	}
+	else {
+		cout << "Compound words not handled" << endl;
+	}
 }
 
 void getFreqCount(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<string, pair<int,int> > > stemQueryTerms) {
@@ -201,6 +205,9 @@ void getFreqCount(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<
 	}
 	if(stemQueryTerms.at(1).second.first == 0) { // Not a compound word
 		getFreqDB(stemQueryTerms.at(1).first);
+	}
+	else {
+		cout << "Compound words not handled" << endl;
 	}
 }
 
@@ -236,7 +243,14 @@ void getTitle(vector<pair<string, pair<int,int> > > queryTerms) {
 }
 
 void getSimilarity(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<string, pair<int,int> > > stemQueryTerms) {
-	cout << "inside getSimilarity" << endl;
+	if(queryTerms.size() != 2) {
+		cout << "Invalid Usage\nUsage: similar <term>" << endl;
+		return;
+	}
+	char* term;
+	strcpy(term, stemQueryTerms.at(1).first.c_str());
+	cout << "Not functioning correctly" << endl;
+	//getSimilarityDB(term);
 }
 
 void processQuery(const char* queryInput) {

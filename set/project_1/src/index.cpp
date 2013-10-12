@@ -213,14 +213,6 @@ int main(int argc, char* argv[]) {
 	generateStopwords(STOPWORDS_FILE);
 	cout << "Starting to stem the text..." << endl;
 	if(stemRawText(inputFiles, argv[1]) != 0) return 1;
-	int parse_success = parse_input(inputFiles, argv[1]);
-	if(!parse_success) {
-
-	}
-	else {
-		cout << "Failed to parse...exiting index" << endl;
-		return 1;
-	}
 	cout << "Storing into the database..." << endl;
 	storeToDB();	
 

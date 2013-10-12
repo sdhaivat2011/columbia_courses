@@ -137,35 +137,6 @@ int createDB() {
 int storeToDB() {
 	system("./db/sqlite3/shell -separator '|' ../indexes/db_index.sqlite '.import docInfo.dat docInfo'");
 	system("./db/sqlite3/shell -separator '|' ../indexes/db_index.sqlite '.import invertedIndex.dat invertedIndex'");
-//	sqlite3 *db;
-//	FILE * pFile;
-//	char sSQL [BUFFER_SIZE] = "\0";
-//	char sInputBuf [BUFFER_SIZE] = "\0";
-//	sqlite3_stmt * stmt;
-//	char * sErrMsg = 0;
-//	const char * tail = 0;
-//	int n;
-//	system("wc -l docInfo.dat");
-//	
-//	sqlite3_open(DB_NAME, &db);
-//	sprintf(sSQL, "INSERT INTO docInfo VALUES(@dI, @dV)");
-//	sqlite3_prepare_v2(db,  sSQL, BUFFER_SIZE, &stmt, &tail);
-//	sqlite3_exec(db, "BEGIN TRANSACTION", NULL, NULL, &sErrMsg);
-//	pFile = fopen ("docInfo.dat","r");
-//	while (!feof(pFile)) {
-//	        fgets (sInputBuf, BUFFER_SIZE, pFile);
-
-//		sqlite3_bind_text(stmt, 1, strtok(sInputBuf, "|"), -1, SQLITE_TRANSIENT); /* Get docID */
-//		sqlite3_bind_text(stmt, 2, strtok(NULL, "\n"), -1, SQLITE_TRANSIENT);  /* Get doc_value */
-//		
-//		sqlite3_step(stmt);     /* Execute the SQL Statement */
-//		sqlite3_clear_bindings(stmt);   /* Clear bindings */
-//		sqlite3_reset(stmt);        /* Reset VDBE */
-//		n++;
-//	}
-//	fclose (pFile);
-//	sqlite3_exec(db, "END TRANSACTION", NULL, NULL, &sErrMsg);
-//	cout << n << " inserts" << endl;
 	return 0;
 }
 
@@ -375,165 +346,250 @@ int getTotalDocCount() {
 	return atoi(data);
 }
 
-
 /**
- * Takes files as input
- * Parses the XML documents
- * Creates a map of the features that need to be indexed
+ * Callback for getFreqDB query
  *
  * */
-int parse_input(vector<string> inputFiles, string inDir)
-{
-	//stemRawText(inputFiles, inDir);
-//	pugi::xml_document doc;
-//	int docID = 0;
-//	string title, author, biblio, text; // extracted from each document provided
-//	char titleAr[1024], authorAr[1024], biblioAr[1024];
-//	map<int, string> docInfo;
-
-//	// Open files for writing to
-//	int file_docInfo = open("docInfo.dat", O_WRONLY|O_CREAT,0640);
-//	if(file_docInfo < 0) {
-//		cout << "Could not open docInfo.dat" << endl;
-//		return 1;
-//	}
-
-//	// Open a database
-//	sqlite3 *db;
-//	char *zErrMsg = 0;
-//	int rc;
-
-//	rc = sqlite3_open(DB_NAME, &db);
-//	if( rc ){
-//		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-//		sqlite3_close(db);
-//		return(1);
-//  	}
-//	rc = sqlite3_exec(db, "create table docInfo(docID int, doc_value blob);", callback, 0, &zErrMsg);
-//	if( rc!=SQLITE_OK ){
-//		fprintf(stderr, "SQL error: %s\n", zErrMsg);
-//		sqlite3_free(zErrMsg);
-//	}
-//	
-//	// Iterate over all the files
-//	for(unsigned n = 0; n < inputFiles.size(); n++) {
-//		// Do not consider the deafult directories
-//		if((inputFiles.at(n).compare(".") != 0) && (inputFiles.at(n).compare("..") != 0)) {
-//			string absFileName = inDir + inputFiles.at(n);
-//			pugi::xml_parse_result result = doc.load_file(absFileName.c_str());
-//			if(result != 1) {
-//				cout << "Could not load " << absFileName << endl;
-//				return 1;
-//			}
-
-//			// Iterate over the nodes present in the XML
-//			for (pugi::xml_node node = doc.child("DOC").first_child(); node; node = node.next_sibling()) {
-//				string nodeName  = node.name();
-//				if(nodeName.compare("DOCNO") == 0) {
-//					docID = atoi(node.child_value());
-//				}
-//				else if(nodeName.compare("TITLE") == 0) {
-//					title = node.child_value();
-//					if(title.length() > 2) {
-//						title.assign(title.substr(1, title.length() - 2));
-//					}
-//					else {
-//						// TODO: Fix this
-//						title.assign("*ERROR*");
-//					}
-//					strcpy(titleAr, title.c_str());
-//				}
-//				else if(nodeName.compare("AUTHOR") == 0) {
-//					author = node.child_value();
-//					if(author.length() > 2) {
-//						author.assign(author.substr(1, author.length() - 2));
-//					}
-//					else {
-//						// TODO: Fix this
-//						author.assign("*ERROR*");
-//					}
-//					strcpy(authorAr, author.c_str());
-//				}
-//				else if(nodeName.compare("BIBLIO") == 0) {
-//					biblio = node.child_value();
-//					if(biblio.length() > 2) {
-//						biblio.assign(biblio.substr(1, biblio.length() - 2));
-//					}
-//					else {
-//						// TODO: Fix this
-//						biblio.assign("*ERROR*");
-//					}
-//					strcpy(biblioAr, biblio.c_str());
-//				}
-//				else if(nodeName.compare("TEXT") == 0) {
-//					text = node.child_value();
-//					if(text.length() > 2) {
-//						text.assign(text.substr(1, text.length() - 2));
-//					}
-//					else {
-//						// TODO: Fix this
-//						text.assign("*ERROR*");
-//					}
-//					stemRawText(absFileName);
-//				}
-//			}
-//			
-//			// Populate the maps, storing in the JSON format
-//			string doc_value = "{\"l\" : \"" + absFileName + "\",\"t\" : \"";
-//			string newline(1, '\n');
-//			string quote("'");
-//			for(unsigned int i = 0; i < strlen(titleAr); i++) {
-//				string s(1, titleAr[i]);
-//				if(s.compare(newline) == 0) {
-//					doc_value.append("\\n");
-//				}
-//				else {
-//					doc_value.append(s);
-//				}
-//			}
-//			doc_value.append("\",\"a\" : \"");
-//			for(unsigned int i = 0; i < strlen(authorAr); i++) {
-//				string s(1, authorAr[i]);
-//				if(s.compare(newline) == 0) {
-//					doc_value.append("\\n");
-//				}
-//				else {
-//					doc_value.append(s);
-//				}
-//			}
-//			doc_value.append("\",\"b\" : \"");
-//			for(unsigned int i = 0; i < strlen(biblioAr); i++) {
-//				string s(1, biblioAr[i]);
-//				if(s.compare(newline) == 0) {
-//					doc_value.append("\\n");
-//				}
-//				else {
-//					doc_value.append(s);
-//				}
-//			}
-//			doc_value.append("\"}");
-//						
-//			string docID_s = boost::lexical_cast<string>( docID );
-//			// Write doc_value into a file
-//			string output = docID_s + "|" + doc_value + "\n";
-
-//			write(file_docInfo, output.c_str(), output.length());
-//			
-//			//json::value v = json::parse(doc_value);
-//			//std::cout << json::pretty_print(v) << std::endl;
-//			//json::value z = v["t"];
-//			//cout << json::to_string(z) << endl;
-//			//std::cout << "----------" << std::endl;
-//			//cout << docInfo[docID] << endl;
-
-//		}
-//		else {
-//			// When it is the default directory.
-//			// do nothing
-//		}
-//	}
-//	system("./db/sqlite3/shell.exe -separator '|' ../indexes/db_index.sqlite '.import docInfo.dat docInfo'");
-//	close(file_docInfo);
-//	sqlite3_close(db);
+static int getDocFreqDBCallback(void* data, int argc, char **argv, char **azColName){
+	if(argv[0]) {
+		char **result_str = (char **)data;
+		*result_str = (char *)calloc(strlen(argv[0]),sizeof(char));
+		strcpy(*result_str,argv[0]);
+	}
+	else {
+		cout << "Specified term not found" << endl;
+		return 1;
+	}
 	return 0;
 }
+
+void getDocFreqDB(string term) {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+	char* data = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		//return(1);
+  	}
+
+	// Run the query
+	string dbQuery = "select term_json from invertedIndex where term=\"" + term + "\";";
+	rc = sqlite3_exec(db, dbQuery.c_str(), getDocFreqDBCallback, &data, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+
+	string str(data);
+	stringstream ss(str);
+	
+	boost::property_tree::ptree pt;
+	boost::property_tree::read_json(ss, pt);
+	int len = 0;
+	BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("dI"))
+        {
+		len++;
+        }
+
+	cout << len << endl;
+}
+
+/**
+ * Callback for getFreqDB query
+ *
+ * */
+static int getFreqDBCallback(void* data, int argc, char **argv, char **azColName){
+	if(argv[0]) {
+		char **result_str = (char **)data;
+		*result_str = (char *)calloc(strlen(argv[0]),sizeof(char));
+		strcpy(*result_str,argv[0]);
+	}
+	else {
+		cout << "Specified term not found" << endl;
+		return 1;
+	}
+	return 0;
+}
+
+
+void getFreqDB(string term) {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+	char* data = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		//return(1);
+  	}
+
+	// Run the query
+	string dbQuery = "select term_json from invertedIndex where term=\"" + term + "\";";
+	rc = sqlite3_exec(db, dbQuery.c_str(), getFreqDBCallback, &data, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+
+	string str(data);
+	stringstream ss(str);
+	
+	boost::property_tree::ptree pt;
+	boost::property_tree::read_json(ss, pt);
+	int len = 0;
+	BOOST_FOREACH(boost::property_tree::ptree::value_type &v, pt.get_child("dI"))
+        {
+		assert(v.first.empty()); // array elements have no names
+		int i = v.second.get<int>("");
+
+		string i_s = boost::lexical_cast<string>(i);
+		string nodeName_len = "dC." + i_s + ".l";
+		len += pt.get<int>(nodeName_len);
+        }
+
+	cout << len << endl;
+}
+
+/**
+ * Callback for getTermFreqDB query
+ *
+ * */
+static int getTermFreqDBCallback(void* data, int argc, char **argv, char **azColName){
+	if(argv[0]) {
+		char **result_str = (char **)data;
+		*result_str = (char *)calloc(strlen(argv[0]),sizeof(char));
+		strcpy(*result_str,argv[0]);
+	}
+	else {
+		cout << "Specified term not found" << endl;
+		return 1;
+	}
+	return 0;
+}
+
+void getTermFreqDB(string term, int docNo) {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+	char* data = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		//return(1);
+  	}
+
+	// Run the query
+	string docNo_s = boost::lexical_cast<string>(docNo);
+	string dbQuery = "select term_json from invertedIndex where term=\"" + term + "\";";
+	rc = sqlite3_exec(db, dbQuery.c_str(), getTermFreqDBCallback, &data, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+	string str(data);
+	stringstream ss(str);
+	
+	boost::property_tree::ptree pt;
+	boost::property_tree::read_json(ss, pt);
+
+	string nodeName_len = "dC." + docNo_s + ".l";
+	int len = pt.get<int>(nodeName_len);
+
+	cout << len << endl;
+}
+
+
+/**
+ * Callback for getDocSnippet query
+ *
+ * */
+static int getDocSnippetCallback(void* data, int argc, char **argv, char **azColName){
+	if(argv[0]) {
+		char **result_str = (char **)data;
+		*result_str = (char *)calloc(strlen(argv[0]),sizeof(char));
+		strcpy(*result_str,argv[0]);
+	}
+	else {
+		cout << "Specified term not found" << endl;
+		return 1;
+	}
+	return 0;
+}
+
+
+// Grep for the terms in the file
+void grepString(vector<string> grepStr, char* data) {
+	int offset; 
+	string line;
+	ifstream Myfile;
+	Myfile.open (data);
+	int found = 0;	
+		
+	if(Myfile.is_open())
+	{
+		while(!Myfile.eof())
+		{
+			getline(Myfile,line);
+			for(int i = 0; i < grepStr.size(); i++) {
+				if ((offset = line.find(grepStr.at(i).c_str(), 0)) != string::npos) 
+				{
+					cout << data << ":"<< line  <<endl;
+					found = 1;
+					break;
+				}
+			}
+			if(found)
+				break;
+		}
+		Myfile.close();
+	}
+	else
+		cout<<"Unable to open this file."<<endl;
+
+}
+
+// Generate a doc snippet given doc no and queryterms
+void getDocSnippet(vector<pair<string, pair<int,int> > > queryTerms, int docno) {
+	// Open a database
+	sqlite3 *db;
+	char *zErrMsg = 0;
+	int rc = 0;
+	char* data = 0;
+
+	rc = sqlite3_open(DB_NAME, &db);
+	if( rc ){
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		//return(1);
+  	}
+
+	// Run the query
+	string docno_s = boost::lexical_cast<string>(docno);
+	string dbQuery = "select doc_value from docInfo where docID=" + docno_s + ";";
+	rc = sqlite3_exec(db, dbQuery.c_str(), getDocSnippetCallback, &data, &zErrMsg);
+	if( rc!=SQLITE_OK ){
+		fprintf(stderr, "SQL error: %s\n", zErrMsg);
+		sqlite3_free(zErrMsg);
+	}
+
+	vector<string> grepStr;
+	for(int j = 0; j < queryTerms.size(); j++) {
+		if(queryTerms.at(j).second.second != 1) {
+			grepStr.push_back(queryTerms.at(j).first);
+		}
+	}
+	grepString(grepStr, data);
+}
+
+

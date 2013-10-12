@@ -5,7 +5,10 @@
 #include <cstring>
 #include <vector>
 #include <stdlib.h>
+#include <stdio.h>
 #include <algorithm>
+#include <sys/time.h>
+#include <unistd.h>
 #include <boost/bind.hpp>
 
 #define BUF_SIZE 256
@@ -140,25 +143,28 @@ void defaultQuery(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<
 						}
 					}
 					else {
-						unsigned int j = 0, p = 1, q = 0;
+						unsigned int j = 0, p = 1, q = 0, count = 0;
 						vector<pair<int,int> > tmp;
 						while(j < vStruct.size() && q < docUnion.size() && p <= allDocs.size()) {
 							if(p != vStruct.at(j).first && p != docUnion.at(q).first) {
 								tmp.push_back(make_pair(p, 1));
-								p++;
+								p++; count++;
 							}
 							else if(p == vStruct.at(j).first && p != docUnion.at(q).first) {
 								j++; p++;
 							}
 							else if(p != vStruct.at(j).first && p == docUnion.at(q).first) {
 								tmp.push_back(make_pair(p, 1+docUnion.at(q).second));								
-								q++;p++;
+								q++;p++;count++;
 							}
 							else {
 								tmp.push_back(make_pair(p, docUnion.at(q).second));
-								j++;p++;q++;
+								j++;p++;q++;count++;
 							}
 						}
+						tmp.resize(count);
+						docUnion.resize(count);
+						docUnion = tmp;
 					}
 				}
 			}
@@ -172,17 +178,30 @@ void defaultQuery(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<
 	for(unsigned int i = 0; i < docUnion.size(); i++) {
 		cout << docUnion.at(i).first << ":" << docUnion.at(i).second << " ";
 	}
-	cout << endl << "\nDisplaying snippets of top 5 results" << endl;
-	for(unsigned int i = 0; i < docUnion.size() && i < 5; i++) {
-		//getDocSnippet();
+	cout << "\n\n" << docUnion.size() << " matching results found" << endl;
+	cout << endl << "\nDisplaying snippets of top 10 results" << endl;
+	for(unsigned int i = 0; i < docUnion.size() && i < 10; i++) {
+		getDocSnippet(queryTerms, docUnion.at(i).first);
 	}
 }
 void getDocFreq(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<string, pair<int,int> > > stemQueryTerms) {
-	cout << "inside getDocFreq" << endl;
+	if(queryTerms.size() != 2) {
+		cout << "Invalid Usage\nUsage: df <term>" << endl;
+		return;
+	}
+	if(stemQueryTerms.at(1).second.first == 0) { // Not a compound word
+		getDocFreqDB(stemQueryTerms.at(1).first);
+	}
 }
 
 void getFreqCount(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<string, pair<int,int> > > stemQueryTerms) {
-	cout << "inside getFreqCount" << endl;
+	if(queryTerms.size() != 2) {
+		cout << "Invalid Usage\nUsage: freq <term>" << endl;
+		return;
+	}
+	if(stemQueryTerms.at(1).second.first == 0) { // Not a compound word
+		getFreqDB(stemQueryTerms.at(1).first);
+	}
 }
 
 // Get the entire document, in a pager
@@ -196,7 +215,14 @@ void getDocument(vector<pair<string, pair<int,int> > > queryTerms) {
 }
 
 void getTermFreq(vector<pair<string, pair<int,int> > > queryTerms, vector<pair<string, pair<int,int> > > stemQueryTerms) {
-	cout << "inside getTermFreq" << endl;
+	if(queryTerms.size() != 3) {
+		cout << "Invalid Usage\nUsage: tf <docno> <term>" << endl;
+		return;
+	}
+	int docNo = atoi(queryTerms.at(1).first.c_str());
+	if(stemQueryTerms.at(2).second.first == 0) { // Not a compound word
+		getTermFreqDB(stemQueryTerms.at(2).first, docNo);
+	}
 }
 
 // Gets the title of the specified document
@@ -263,12 +289,24 @@ int main() {
 	while(true) {
 		cout << "\n\nEnter a query (.exit to exit): " << endl;
 		getline(cin, queryInput_s);
+		
+		struct timeval start, end;
+		long mtime, seconds, useconds;    
+		gettimeofday(&start, NULL);
+
 		if(queryInput_s.compare(".exit") == 0) {
 			break;
 		}
 		else {
 			processQuery(queryInput_s.c_str());
 		}
+		gettimeofday(&end, NULL);
+		seconds  = end.tv_sec  - start.tv_sec;
+		useconds = end.tv_usec - start.tv_usec;
+
+		mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
+
+		printf("\nElapsed time: %ld milliseconds\n", mtime);
 	}
 	return 0;
 }

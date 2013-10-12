@@ -8,6 +8,19 @@
 
 using namespace std;
 
+// Get term freq. 
+void getTermFreqDB(string term, int docNo);
+
+// Get the total occurence freq of the term
+void getFreqDB(string term);
+
+
+// Gets the occurence freq of the term in no of docs 
+void getDocFreqDB(string term);
+
+// Generate a document snippet for the given docno and the queryTerms
+void getDocSnippet(vector<pair<string, pair<int,int> > > queryTerms, int docno);
+
 // Get total number of docs in the corpus
 int getTotalDocCount();
 
@@ -34,9 +47,6 @@ extern map<string, int> stopwords;
 
 // Returns all the files present in the given directory
 extern vector<string> load_input(const char* p_inputDir);
-
-// Parses the file provided to extract structured information
-int parse_input(vector<string> inputFile, string inDir);
 
 // Create an sqlite DB
 int createDB();

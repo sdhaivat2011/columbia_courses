@@ -1,2 +1,6 @@
 *.o
 *.tag
+*.pyc
+set/finalProject/ENV/
+*~
+.DS_STORE
